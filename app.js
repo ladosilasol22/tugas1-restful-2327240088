@@ -165,6 +165,47 @@ app.post("/waste-deposits", (req, res) => {
   });
 });
 
+// ---------------------------------------------------------------------
+// PUT /waste-deposits/:id
+// Body: { "namaNasabah": "Budi Santoso", "jenisSampah": "kaca", "beratKg": 7,
+//         "hargaPerKg": 1500, "tanggalSetor": "2026-09-11" }
+// Mengganti seluruh field (penggantian penuh)
+// ---------------------------------------------------------------------
+app.put("/waste-deposits/:id", (req, res) => {
+  const id = Number(req.params.id); // ambil id dari route parameter
+  const index = wasteDeposits.findIndex((d) => d.id === id); // cari posisi data
+
+  if (index === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: `Setoran sampah dengan id ${req.params.id} tidak ditemukan`,
+      data: null,
+    });
+  }
+
+  const error = validateWasteDeposit(req.body); // validasi field wajib
+  if (error) {
+    return res.status(400).json({ status: "error", message: error, data: null });
+  }
+
+  const { namaNasabah, jenisSampah, beratKg, hargaPerKg, tanggalSetor } = req.body;
+  const dataUbah = {
+    id, // id tetap, tidak diambil dari body
+    namaNasabah: namaNasabah.trim(),
+    jenisSampah,
+    beratKg,
+    hargaPerKg,
+    tanggalSetor,
+  };
+  wasteDeposits[index] = dataUbah; // ganti seluruh data
+
+  res.status(200).json({
+    status: "success",
+    message: `Setoran sampah dengan id ${id} berhasil diperbarui`,
+    data: dataUbah,
+  });
+});
+
 
 // Jalankan server hanya jika file dijalankan langsung (node app.js / nodemon).
 // Di Vercel (serverless) app tidak di-listen, tetapi diekspor.
