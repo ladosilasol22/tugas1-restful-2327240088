@@ -206,6 +206,53 @@ app.put("/waste-deposits/:id", (req, res) => {
   });
 });
 
+// ---------------------------------------------------------------------
+// DELETE /waste-deposits/:id
+// Menghapus data, data: null jika berhasil
+// ---------------------------------------------------------------------
+app.delete("/waste-deposits/:id", (req, res) => {
+  const id = Number(req.params.id); // ambil id dari route parameter
+  const index = wasteDeposits.findIndex((d) => d.id === id); // cari posisi data
+
+  if (index === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: `Setoran sampah dengan id ${req.params.id} tidak ditemukan`,
+      data: null,
+    });
+  }
+
+  wasteDeposits.splice(index, 1); // hapus dari array
+
+  res.status(200).json({
+    status: "success",
+    message: `Setoran sampah dengan id ${id} berhasil dihapus`,
+    data: null,
+  });
+});
+
+// ---------------------------------------------------------------------
+// Catch-all 404: route yang tidak terdaftar (diletakkan setelah semua route)
+// ---------------------------------------------------------------------
+app.use((req, res) => {
+  res.status(404).json({
+    status: "error",
+    message: "Endpoint tidak ditemukan",
+    data: null,
+  });
+});
+
+// Error handler: menangani body JSON yang rusak agar tetap membalas JSON
+app.use((err, req, res, next) => {
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({
+      status: "error",
+      message: "Format body JSON tidak valid",
+      data: null,
+    });
+  }
+  res.status(500).json({ status: "error", message: "Terjadi kesalahan pada server", data: null });
+});
 
 // Jalankan server hanya jika file dijalankan langsung (node app.js / nodemon).
 // Di Vercel (serverless) app tidak di-listen, tetapi diekspor.
