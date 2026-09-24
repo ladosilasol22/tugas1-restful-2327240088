@@ -61,6 +61,42 @@ app.get("/", (req, res) => {
   });
 });
 
+// ---------------------------------------------------------------------
+// GET /waste-deposits
+// GET /waste-deposits?jenisSampah=plastik  (filter dengan query string)
+// Mengembalikan array langsung (boleh kosong [])
+// ---------------------------------------------------------------------
+app.get("/waste-deposits", (req, res) => {
+  const { jenisSampah } = req.query; // ambil query string jenisSampah
+
+  if (jenisSampah !== undefined) {
+    const keyword = String(jenisSampah).toLowerCase(); // tidak peka huruf besar/kecil
+    const hasil = wasteDeposits.filter((item) => item.jenisSampah.toLowerCase() === keyword);
+    return res.status(200).json(hasil); // array hasil filter
+  }
+
+  res.status(200).json(wasteDeposits); // array semua data
+});
+
+// ---------------------------------------------------------------------
+// GET /waste-deposits/:id
+// Mengembalikan objek satu data, atau 404 jika tidak ada
+// ---------------------------------------------------------------------
+app.get("/waste-deposits/:id", (req, res) => {
+  const id = Number(req.params.id); // ambil id dari route parameter
+  const item = wasteDeposits.find((d) => d.id === id); // cari data
+
+  if (!item) {
+    return res.status(404).json({
+      status: "error",
+      message: `Setoran sampah dengan id ${req.params.id} tidak ditemukan`,
+      data: null,
+    });
+  }
+
+  res.status(200).json(item); // objek data langsung
+});
+
 
 // Jalankan server hanya jika file dijalankan langsung (node app.js / nodemon).
 // Di Vercel (serverless) app tidak di-listen, tetapi diekspor.
