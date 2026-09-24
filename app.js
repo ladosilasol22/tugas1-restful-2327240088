@@ -40,6 +40,45 @@ let wasteDeposits = [
 ];
 let nextId = 4; // id berikutnya untuk data baru
 
+// Daftar jenis sampah yang diperbolehkan
+const JENIS_SAMPAH = ["plastik", "kertas", "logam", "kaca"];
+
+// Fungsi bantu: cek format tanggal YYYY-MM-DD dan tanggalnya valid
+function isValidDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(value + "T00:00:00Z"); // ubah ke objek Date (UTC)
+  return !isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value; // tolak 2026-02-30 dsb.
+}
+
+// Fungsi bantu: validasi semua field wajib, mengembalikan pesan error atau null
+function validateWasteDeposit(body) {
+  const { namaNasabah, jenisSampah, beratKg, hargaPerKg, tanggalSetor } = body || {};
+
+  // cek field wajib yang kosong / tidak dikirim
+  const wajib = { namaNasabah, jenisSampah, beratKg, hargaPerKg, tanggalSetor };
+  const kosong = Object.keys(wajib).filter(
+    (key) => wajib[key] === undefined || wajib[key] === null || String(wajib[key]).trim() === ""
+  );
+  if (kosong.length > 0) {
+    return `Field wajib tidak boleh kosong: ${kosong.join(", ")}`;
+  }
+
+  // cek tipe data dan nilai
+  if (typeof namaNasabah !== "string") return "namaNasabah harus berupa string";
+  if (!JENIS_SAMPAH.includes(jenisSampah)) {
+    return `jenisSampah harus salah satu dari: ${JENIS_SAMPAH.join(", ")}`;
+  }
+  if (typeof beratKg !== "number" || !Number.isFinite(beratKg) || beratKg <= 0) {
+    return "beratKg harus berupa angka lebih dari 0";
+  }
+  if (typeof hargaPerKg !== "number" || !Number.isFinite(hargaPerKg) || hargaPerKg <= 0) {
+    return "hargaPerKg harus berupa angka lebih dari 0";
+  }
+  if (!isValidDate(tanggalSetor)) return "tanggalSetor harus berformat YYYY-MM-DD";
+
+  return null; // lolos validasi
+}
+
 // ---------------------------------------------------------------------
 // GET /
 // Info API: nama mahasiswa, NIM, nomor topik, daftar endpoint
@@ -95,6 +134,35 @@ app.get("/waste-deposits/:id", (req, res) => {
   }
 
   res.status(200).json(item); // objek data langsung
+});
+
+// ---------------------------------------------------------------------
+// POST /waste-deposits
+// Body: { "namaNasabah": "Rina", "jenisSampah": "plastik", "beratKg": 4,
+//         "hargaPerKg": 3000, "tanggalSetor": "2026-09-10" }
+// ---------------------------------------------------------------------
+app.post("/waste-deposits", (req, res) => {
+  const error = validateWasteDeposit(req.body); // validasi field wajib
+  if (error) {
+    return res.status(400).json({ status: "error", message: error, data: null });
+  }
+
+  const { namaNasabah, jenisSampah, beratKg, hargaPerKg, tanggalSetor } = req.body;
+  const dataBaru = {
+    id: nextId++, // id dibuat otomatis oleh server
+    namaNasabah: namaNasabah.trim(),
+    jenisSampah,
+    beratKg,
+    hargaPerKg,
+    tanggalSetor,
+  };
+  wasteDeposits.push(dataBaru); // simpan ke array
+
+  res.status(201).json({
+    status: "success",
+    message: "Setoran sampah berhasil ditambahkan",
+    data: dataBaru,
+  });
 });
 
 
