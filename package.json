@@ -1,7 +1,7 @@
 {
-  "name": "tugas1-restful",
+  "name": "tugas1-restful_2327240088",
   "version": "1.0.0",
-  "description": "RESTful API Bank Sampah - Setoran Sampah (Tugas 1)",
+  "description": "RESTful API Bank Sampah - Bank Sampah",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -17,6 +17,7 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
-  }
+    "nodemon": "^3.1.14"
+  },
+  "type": "commonjs"
 }

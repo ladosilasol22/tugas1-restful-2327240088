@@ -1,10 +1,3 @@
-// =====================================================================
-// Tugas 1 - RESTful API Murni dengan Express.js
-// Topik 3 - Bank Sampah: Setoran Sampah
-// Nama : Michella Valery
-// NIM  : ISI_NIM_ANDA   <-- GANTI dengan NIM Anda
-// =====================================================================
-
 const express = require("express"); // impor express
 const app = express(); // buat instance aplikasi express
 const PORT = process.env.PORT || 3000; // port dari environment (Vercel) atau 3000
@@ -15,7 +8,7 @@ app.use(express.json()); // middleware untuk membaca body JSON
 let wasteDeposits = [
   {
     id: 1,
-    namaNasabah: "Budi Santoso",
+    namaNasabah: "Aldo",
     jenisSampah: "plastik",
     beratKg: 5.5,
     hargaPerKg: 3000,
@@ -23,7 +16,7 @@ let wasteDeposits = [
   },
   {
     id: 2,
-    namaNasabah: "Siti Aminah",
+    namaNasabah: "Amanda",
     jenisSampah: "kertas",
     beratKg: 10,
     hargaPerKg: 2000,
@@ -31,7 +24,7 @@ let wasteDeposits = [
   },
   {
     id: 3,
-    namaNasabah: "Andi Wijaya",
+    namaNasabah: "Anugrah",
     jenisSampah: "logam",
     beratKg: 3,
     hargaPerKg: 8000,
@@ -79,14 +72,11 @@ function validateWasteDeposit(body) {
   return null; // lolos validasi
 }
 
-// ---------------------------------------------------------------------
-// GET /
-// Info API: nama mahasiswa, NIM, nomor topik, daftar endpoint
-// ---------------------------------------------------------------------
+
 app.get("/", (req, res) => {
   res.status(200).json({
     nama: "Michella Valery",
-    nim: "ISI_NIM_ANDA", // GANTI dengan NIM Anda
+    npm: "2327240088",
     topik: 3,
     judulTopik: "Bank Sampah - Setoran Sampah",
     endpoint: [
@@ -100,11 +90,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------
-// GET /waste-deposits
-// GET /waste-deposits?jenisSampah=plastik  (filter dengan query string)
-// Mengembalikan array langsung (boleh kosong [])
-// ---------------------------------------------------------------------
+
 app.get("/waste-deposits", (req, res) => {
   const { jenisSampah } = req.query; // ambil query string jenisSampah
 
@@ -117,10 +103,7 @@ app.get("/waste-deposits", (req, res) => {
   res.status(200).json(wasteDeposits); // array semua data
 });
 
-// ---------------------------------------------------------------------
-// GET /waste-deposits/:id
-// Mengembalikan objek satu data, atau 404 jika tidak ada
-// ---------------------------------------------------------------------
+
 app.get("/waste-deposits/:id", (req, res) => {
   const id = Number(req.params.id); // ambil id dari route parameter
   const item = wasteDeposits.find((d) => d.id === id); // cari data
@@ -128,7 +111,7 @@ app.get("/waste-deposits/:id", (req, res) => {
   if (!item) {
     return res.status(404).json({
       status: "error",
-      message: `Setoran sampah dengan id ${req.params.id} tidak ditemukan`,
+      message: "Data setoran sampah tidak ditemukan",
       data: null,
     });
   }
@@ -136,15 +119,14 @@ app.get("/waste-deposits/:id", (req, res) => {
   res.status(200).json(item); // objek data langsung
 });
 
-// ---------------------------------------------------------------------
-// POST /waste-deposits
-// Body: { "namaNasabah": "Rina", "jenisSampah": "plastik", "beratKg": 4,
-//         "hargaPerKg": 3000, "tanggalSetor": "2026-09-10" }
-// ---------------------------------------------------------------------
+
 app.post("/waste-deposits", (req, res) => {
   const error = validateWasteDeposit(req.body); // validasi field wajib
   if (error) {
-    return res.status(400).json({ status: "error", message: error, data: null });
+    return res.status(400).json({ 
+      status: "error",
+      message: error,
+      data: null });
   }
 
   const { namaNasabah, jenisSampah, beratKg, hargaPerKg, tanggalSetor } = req.body;
@@ -165,12 +147,6 @@ app.post("/waste-deposits", (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------
-// PUT /waste-deposits/:id
-// Body: { "namaNasabah": "Budi Santoso", "jenisSampah": "kaca", "beratKg": 7,
-//         "hargaPerKg": 1500, "tanggalSetor": "2026-09-11" }
-// Mengganti seluruh field (penggantian penuh)
-// ---------------------------------------------------------------------
 app.put("/waste-deposits/:id", (req, res) => {
   const id = Number(req.params.id); // ambil id dari route parameter
   const index = wasteDeposits.findIndex((d) => d.id === id); // cari posisi data
@@ -178,7 +154,7 @@ app.put("/waste-deposits/:id", (req, res) => {
   if (index === -1) {
     return res.status(404).json({
       status: "error",
-      message: `Setoran sampah dengan id ${req.params.id} tidak ditemukan`,
+      message: "Data setoran sampah tidak ditemukan",
       data: null,
     });
   }
@@ -201,15 +177,12 @@ app.put("/waste-deposits/:id", (req, res) => {
 
   res.status(200).json({
     status: "success",
-    message: `Setoran sampah dengan id ${id} berhasil diperbarui`,
+    message: "Data setoran sampah berhasil diperbarui",
     data: dataUbah,
   });
 });
 
-// ---------------------------------------------------------------------
-// DELETE /waste-deposits/:id
-// Menghapus data, data: null jika berhasil
-// ---------------------------------------------------------------------
+
 app.delete("/waste-deposits/:id", (req, res) => {
   const id = Number(req.params.id); // ambil id dari route parameter
   const index = wasteDeposits.findIndex((d) => d.id === id); // cari posisi data
@@ -217,7 +190,7 @@ app.delete("/waste-deposits/:id", (req, res) => {
   if (index === -1) {
     return res.status(404).json({
       status: "error",
-      message: `Setoran sampah dengan id ${req.params.id} tidak ditemukan`,
+      message: "Data setoran sampah tidak ditemukan",
       data: null,
     });
   }
@@ -226,14 +199,11 @@ app.delete("/waste-deposits/:id", (req, res) => {
 
   res.status(200).json({
     status: "success",
-    message: `Setoran sampah dengan id ${id} berhasil dihapus`,
+    message: "Data setoran sampah berhasil dihapus",
     data: null,
   });
 });
 
-// ---------------------------------------------------------------------
-// Catch-all 404: route yang tidak terdaftar (diletakkan setelah semua route)
-// ---------------------------------------------------------------------
 app.use((req, res) => {
   res.status(404).json({
     status: "error",
@@ -254,8 +224,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ status: "error", message: "Terjadi kesalahan pada server", data: null });
 });
 
-// Jalankan server hanya jika file dijalankan langsung (node app.js / nodemon).
-// Di Vercel (serverless) app tidak di-listen, tetapi diekspor.
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
